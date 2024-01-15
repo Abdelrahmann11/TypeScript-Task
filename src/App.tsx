@@ -5,6 +5,8 @@ import { useState } from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css'
 import {ValidName, ValidEmail, ValidNumber, ValidPass} from './Regex'
 import Button from './Button';
+import {userSchema} from './Validations/UserValidation';
+import  * as yup from 'yup';
 
 function App() {
 
@@ -133,7 +135,7 @@ function App() {
         }
     }
 }
-  function SubmitHandler(e:any){
+  async function SubmitHandler(e:any){
     e.preventDefault();
     if(EmptyChecker() === false){
       document.getElementById("Incorrect")!.innerHTML='<span class="text-danger m-3">All Input Fields Are Required</span>'
@@ -157,21 +159,30 @@ function App() {
     //   SetPass("")
     //   return true
     // } 
+    
       if(EmailExistChecker() === false){
-        // EmailValid!.innerHTML = '<span class="text-danger m-3">Email Already Exist</span>'
-        console.log("Email Already Exist");
-        
-      } else{
+        document.getElementById("Incorrect")!.innerHTML = '<span class="text-danger m-3">Email Already Exist</span>'
+        // console.log("Email Already Exist");
+        return false
+      }
+      let userdata = {
+        name: name,
+        email: email,
+        number: number,
+        Password: pass,
+      }
+      const isValid:boolean =await userSchema.isValid(userdata)
+        console.log(isValid);
+      if(isValid){
         // userArray.push(userdata)
         // localStorage.setItem("UserData", JSON.stringify(userArray))
-        if(UserNameValidation() && UserEmailValidation() && UserPassValidation()){
-          let userdata = {
-            name: name,
-            email: email,
-            number: number,
-            Password: pass,
-          }
-      
+        // if(UserNameValidation() && UserEmailValidation() && UserPassValidation()){
+          // let userdata = {
+          //   name: name,
+          //   email: email,
+          //   number: number,
+          //   Password: pass,
+          // }
           userArray.push(userdata)
           localStorage.setItem("UserData", JSON.stringify(userArray))
     
@@ -179,13 +190,18 @@ function App() {
           SetEmail("")
           SetNumber(0)
           SetPass("")
+          
           return true
-        } 
+        // } 
+        
 
-        SetName("")
-        SetEmail("")
-        SetNumber(0)
-        SetPass("")
+        // SetName("")
+        // SetEmail("")
+        // SetNumber(0)
+        // SetPass("")
+      } else{
+        console.log("Validation Error");
+        
       }
 
     // let userdata = {
