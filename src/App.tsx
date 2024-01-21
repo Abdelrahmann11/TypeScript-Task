@@ -1,18 +1,38 @@
 import './App.css';
 import Input from './Input';
 import Header from './Header';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css'
 import {ValidName, ValidEmail, ValidNumber, ValidPass} from './Regex'
 import Button from './Button';
 import {userSchema} from './Validations/UserValidation';
 import  * as yup from 'yup';
+import {useForm} from 'react-hook-form';
+import {yupResolver} from '@hookform/resolvers/yup'
 
 function App() {
 
+  interface props{
+    type: string
+    placeholder?: string
+    id: string
+    onChange?: (event: React.ChangeEvent<HTMLInputElement>) => void
+    value?: string 
+    label?: any
+  }
+  
+  const Input = (props: props) => {
+    
+      return(
+        <div>
+          <input className='CC' type={props.type} placeholder={props.placeholder} id={props.id} value={props.value} onChange={props.onChange} /> 
+        </div>
+      )
+  }
+
   const [name, SetName] = useState<string>("");
   const [email, SetEmail] = useState<string>("");
-  const [number, SetNumber] = useState<number>(0);
+  const [number, SetNumber] = useState<string>("");
   const [pass, SetPass] = useState<any>("");
 
   function NameChangeHandler(e:any){
@@ -34,100 +54,30 @@ function App() {
     SetPass(e.target.value)
     // console.log(e.target.value);
   }
+  
 
-  let userArray:any= [];
+  // let userArray:any =[];
+  // if(localStorage.getItem("UserData") == null){
+  //   userArray= []
+  // } else{
+  //     userArray = JSON.parse(localStorage.getItem("UserData")!)
+  // }
+
+  let userArray:any[];
   if(localStorage.getItem("UserData") == null){
-    userArray= []
+    userArray = []
   } else{
-      userArray = JSON.parse(localStorage.getItem("UserData")!)
+    userArray = JSON.parse(localStorage.getItem("UserData")!)
   }
 
   function EmptyChecker(){
-    if(name === "" || email === "" || number === 0 || pass === ""){
+    if(name === "" || email === "" || number === "" || pass === ""){
       return false
     } else{
       return true
     }
   }
-
-  let NameValid = document.getElementById("NameValid")
-  let EmailValid = document.getElementById("EmailValid")
-  let NumberValid = document.getElementById("NumberValid")
-  let PassValid = document.getElementById("PassValid")
-
-  function UserNameValidation(){
-    var regex = /^[A-Z]{1,}|\s[a-zA-Z]{2,}$/
-
-    if(regex.test(name)){
-      document.getElementById("NameValid")?.classList.replace("d-block", "d-none")
-        return true;
-    } else{
-      document.getElementById("NameValid")?.classList.replace("d-none", "d-block")
-        return false;
-    }
-  }
-
-  function UserEmailValidation(){
-    var regex = /^[a-zA-Z]{2,}[0-9]{0,}(@)((gmail\.com)|(hotmail\.com))$/
-
-    if(regex.test(email)){
-      document.getElementById("EmailValid")?.classList.replace("d-block", "d-none")
-        return true;
-    } else{
-      document.getElementById("EmailValid")?.classList.replace("d-none", "d-block")
-        return false;
-    }
-  }
-
-  // function UserNumberValidation(){
-  //   var regex = /^(010)|(011)|(012)|(015)[0-9]{8}$/
-
-  //   if(regex.test(number)){
-  //     document.getElementById("NumberValid")!.classList.replace("d-block", "d-none")
-  //       return true;
-  //   } else{
-  //     document.getElementById("NumberValid")!.classList.replace("d-none", "d-block")
-  //       return false;
-  //   }
-  // }
-
-  function UserPassValidation(){
-    var regex = /^[a-zA-Z]{8,}[0-9]{0,}((@){0,}(%){0,})$/
-
-    if(regex.test(pass)){
-      document.getElementById("PassValid")?.classList.replace("d-block", "d-none")
-        return true;
-    } else{
-      document.getElementById("PassValid")?.classList.replace("d-none", "d-block")
-        return false;
-    }
-  }
-
-  const [nameErr, setNameErr] = useState(false); 
-  const [emailErr, setEmailErr] = useState(false); 
-  const [numErr, setNumErr] = useState(false); 
-  const [passErr, setPassErr] = useState(false);
-
-  function valid(){
-    if(!ValidName.test(name)){
-      setNameErr(true)
-
-    }
-    
-    if(!ValidEmail.test(email)){
-      setEmailErr(true)
-    }
-
-    if(!ValidNumber.test(number)){
-      setNumErr(true)
-    }
-
-    if(!ValidPass.test(pass)){
-      setPassErr(true)
-    }
-    return true
-  }
-
+  
   function EmailExistChecker(){
     for(var i =0;i<userArray.length; i++){
         if(userArray[i].email.toLowerCase() === email.toLowerCase()){
@@ -142,82 +92,65 @@ function App() {
       return false
     }
 
-    // if(UserNameValidation() && UserEmailValidation() && UserPassValidation()){
-    //   let userdata = {
-    //     name: name,
-    //     email: email,
-    //     number: number,
-    //     Password: pass,
-    //   }
-  
-    //   userArray.push(userdata)
-    //   localStorage.setItem("UserData", JSON.stringify(userArray))
-
-    //   SetName("")
-    //   SetEmail("")
-    //   SetNumber(0)
-    //   SetPass("")
-    //   return true
-    // } 
-    
       if(EmailExistChecker() === false){
         document.getElementById("Incorrect")!.innerHTML = '<span class="text-danger m-3">Email Already Exist</span>'
         // console.log("Email Already Exist");
         return false
       }
-      let userdata = {
-        name: name,
-        email: email,
-        number: number,
-        Password: pass,
-      }
-      const isValid:boolean =await userSchema.isValid(userdata)
-        console.log(isValid);
-      if(isValid){
-        // userArray.push(userdata)
-        // localStorage.setItem("UserData", JSON.stringify(userArray))
-        // if(UserNameValidation() && UserEmailValidation() && UserPassValidation()){
-          // let userdata = {
-          //   name: name,
-          //   email: email,
-          //   number: number,
-          //   Password: pass,
-          // }
-          userArray.push(userdata)
-          localStorage.setItem("UserData", JSON.stringify(userArray))
+      // let userdata = {
+      //   name: name,
+      //   email: email,
+      //   number: number,
+      //   Password: pass,
+      // }
+      // const isValid:boolean =await userSchema.isValid(userdata)
+      //   console.log(isValid);
+      // if(isValid){
+        
+      //     userArray.push(userdata)
+      //     localStorage.setItem("UserData", JSON.stringify(userArray))
     
-          SetName("")
-          SetEmail("")
-          SetNumber(0)
-          SetPass("")
-          
-          return true
-        // } 
+      //     SetName("")
+      //     SetEmail("")
+      //     SetNumber(0)
+      //     SetPass("")
+
+      //     return true
+
+      // } else{
+      //   console.log("Validation Error");
         
+      // }
+  }
 
-        // SetName("")
-        // SetEmail("")
-        // SetNumber(0)
-        // SetPass("")
-      } else{
-        console.log("Validation Error");
-        
-      }
+  const {register, handleSubmit, formState:{errors}} = useForm({
+    resolver: yupResolver(userSchema),
+    defaultValues:{
+      name: '',
+      email: '',
+      number: '',
+      Password: '',
+    }
+  })
+  // console.log("errors ", errors)
+  // if(EmailExistChecker() === false){
+  //   document.getElementById("Incorrect")!.innerHTML = '<span class="text-danger m-3">Email Already Exist</span>'
+  //   // console.log("Email Already Exist");
+  //   return false
+  // }
+  const onSubmit = (data: any) =>{
 
-    // let userdata = {
-    //   name: name,
-    //   email: email,
-    //   number: number,
-    //   Password: pass,
-    // }
+    if(EmailExistChecker() === false){
+    document.getElementById("Incorrect")!.innerHTML = '<span class="text-danger m-3">Email Already Exist</span>'
+    // console.log("Email Already Exist");
+    return false
+  }
 
-    // userArray.push(userdata)
-    // localStorage.setItem("UserData", JSON.stringify(userArray))
-
-    // SetName("")
-    // SetEmail("")
-    // SetNumber(0)
-    // SetPass("")
+    console.log("data ", data)
+    userArray.push(data)
+    // const storedData = JSON.parse(localStorage.getItem("FromDataForm")!) || [];
+    // const  newData = [...storedData, data]
+    localStorage.setItem("UserDaaataaa", JSON.stringify(userArray))
   }
 
 
@@ -225,28 +158,33 @@ function App() {
     <div className="App">
       <Header title='Login Form' color='blue'/>
       
-      <form onSubmit={SubmitHandler}>
-        {/* <input type='text' placeholder='' id='' onChange={NameChangeHandler}/> */}
+      {/* <form onSubmit={SubmitHandler}> */}
+      <form onSubmit={handleSubmit(onSubmit)}>
+        {/* <input type='text' placeholder='' id='' onChange={NameChangeHandler} {...register}/> */}
         <label>Name:</label>
-        {nameErr && <div className="alert alert-danger" id="NameValid">Your name must start with capital letter</div>}
+        {errors.name && <div className="alert alert-danger" id="NameValid">Your name must start with capital letter</div>}
         {/* <div className="alert alert-danger d-none" id="NameValid">Your name must start with capital letter</div> */}
-        <Input type='text' placeholder='Please enter your name' id='Name' value={name} onChange={NameChangeHandler}/>
+        {/* <Input {...register('name')} type='text' placeholder='Please enter your name' id='Name' value={name} onChange={NameChangeHandler}/> */}
+        <input className='CC' type="text" {...register('name')}/>
 
         <label>Email:</label>
         {/* {emailErr && <p>NOOOOOOOOOOOOOOOOOO</p>} */}
-        {emailErr && <div className="alert alert-danger" id="EmailValid">Your email must contain number and end with (@gmai.com) or (@hotmail.com)</div>}
+        {errors.email && <div className="alert alert-danger" id="EmailValid">Your email must contain number and end with (@gmai.com) or (@hotmail.com)</div>}
         {/* <div className="alert alert-danger d-none" id="EmailValid">Your email must contain number and end with (@gmai.com) or (@hotmail.com)</div> */}
-        <Input type='email' placeholder='Please enter your email' id='Email' value={email} onChange={EmailChangeHandler}/>
+        {/* <Input {...register('email')} type='email' placeholder='Please enter your email' id='Email' value={email} onChange={EmailChangeHandler}/> */}
+        <input className='CC' type="text" {...register('email')}/>
         
         <label>Number:</label>
-        {numErr && <div className="alert alert-danger" id="NumberValid">Your number must be 11 Numbers and start with (012) or (011) or (015) or (010)</div>}
+        {errors.number && <div className="alert alert-danger" id="NumberValid">Your number must be 11 Numbers and start with (012) or (011) or (015) or (010)</div>}
         {/* <div className="alert alert-danger d-none" id="NumberValid">Your number must be 11 Numbers and start with (012) or (011) or (015) or (010)</div> */}
-        <Input type='number' placeholder='Please enter your Number' id='Number' value={number} onChange={NumberChangeHandler}/>
-        
+        {/* <Input {...register('number')} type='number' placeholder='Please enter your Number' id='Number' value={number} onChange={NumberChangeHandler}/> */}
+        <input className='CC' type="text" {...register('number')}/>
+
         <label>Password:</label>
-        {passErr && <div className="alert alert-danger" id="PassValid">Your password must be more than 8 characters (A- Z) may contain (@ / %) and numbers</div>}
+        {errors.Password && <div className="alert alert-danger" id="PassValid">Your password must be more than 8 characters (A- Z) may contain (@ / %) and numbers</div>}
         {/* <div className="alert alert-danger d-none" id="PassValid">Your password must be more than 8 characters (A- Z) may contain (@ / %) and numbers</div> */}
-        <Input type='Password' placeholder='Please enter your Password' id='Pass' value={pass} onChange={PassChangeHandler}/>
+        {/* <Input {...register('Password')} type='Password' placeholder='Please enter your Password' id='Pass' value={pass} onChange={PassChangeHandler}/> */}
+        <input className='CC' type="text" {...register('Password')}/>
         <Input type='submit' placeholder='Submit' id='SubmitBtn' />
       </form>
       <span id='Incorrect'></span>
